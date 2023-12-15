@@ -23,30 +23,31 @@ class HeaderViewSet(viewsets.ModelViewSet):
         return Response(data=serializer.data, status=status.HTTP_200_OK) 
     
     def create(self, request, *args, **kwargs):
+        
+        items_data = request.data['items']
+        item_objs = []
+        for item_data in items_data:
+            item_data['Amount'] = item_data['Quantity']*item_data['Price']
+            item_obj, _ = Item.objects.get_or_create(**item_data)
+            item_objs.append(item_obj.id)
+        request.data['items'] = item_objs
+        temp = sum([float(x['Amount']) for x in items_data]) + sum([float(x['Amount']) for x in request.data['billsundry']])
+        sundrys_data = request.data['billsundry']
+        sundry_objs = []
+        for sundry_data in sundrys_data:
+            sundry_obj, _ = Item.objects.get_or_create(**sundry_data)
+            sundry_objs.append(sundry_obj.id)
+        request.data['billsundry'] = sundry_objs
+        request.data['TotalAmount'] = temp
         header_serializer = self.get_serializer(data=request.data)
         if header_serializer.is_valid():
-            items_data = request.data['items']
-            temp = []
-            for item_data in items_data:
-                item_data['Amount'] = item_data['Quantity']*item_data['Price']
-                temp.append(item_data)
-            items_data = temp
-            temp = sum([float(x['Amount']) for x in items_data]) + sum([float(x['Amount']) for x in request.data['billsundry']])
-            request.data['TotalAmount'] = temp
-            header_serializer = self.get_serializer(data=request.data)
             header_obj = header_serializer.save()
-            items_serializer = ItemSerializer(data=request.data['items'],  invoice_header=header_obj, many=True)
-            if items_serializer.is_valid():
-                items_serializer.save()
-            sundry_serializer = BillSundrySerializer(data=request.data["billsundry"], invoice_header=header_obj, many=True)
-            if sundry_serializer.is_valid():
-                sundry_serializer.save()
         return Response(data=header_serializer.data, status=status.HTTP_400_BAD_REQUEST)
 
 
     def retrieve(self, request,  pk=None, *args, **kwargs):
         instance = self.get_object()
-        serializer = self.serializer(instance)
+        serializer = self.get_serializer(instance)
         data = serializer.data
         items_data = list(Item.objects.filter(invoice_header=instance).values("itemName", "Quantity", "Price", "Amount"))
         sundry_data = BillSundry.objects.filter(invoice_header=instance).values("billSundryName", "Amount")
@@ -55,7 +56,7 @@ class HeaderViewSet(viewsets.ModelViewSet):
         return Response(data=serializer.data, status=status.HTTP_200_OK) 
 
     def update(self, request,  pk=None, *args, **kwargs):
-        serializer = self.serializer(data=request.data)
+        serializer = self.get_serializer(data=request.data)
         self.perform_update(serializer)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
