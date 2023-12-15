@@ -1,0 +1,25 @@
+{
+    "Date":"15-12-2023",
+    "InvoiceNumber":1,
+    "CustomerName":"Siva",
+    "BillingAddress":"Address-1",
+    "ShippingAddress":"Address-2",
+    "GSTIN":"Test-1",
+    "TotalAmount":100,
+    "items":[
+        {
+            "itemName":"Item-1",
+            "Quantity":10,
+            "Price":10,
+            "Amount":10
+        }
+    ],
+    "billsundry":[
+        {
+            "billSundryName":"BillSund-1",
+            "Amount":"100"
+        }
+    ]
+}
+
+priyanshu.b@altiushub.com

@@ -1,0 +1,29 @@
+{% load static %}
+<head>
+    <link rel="stylesheet" href="{% static 'Test_App/css/bootstrap.min.css' %}">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <img src="{% static 'Test_App/images/altiushub_logo.jpg' %}" style="width: 4%;" alt="Logo Image">
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item active">
+                    <a class="nav-link" href="#">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">About</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Contact</a>
+                </li>
+                <li style="margin: auto;margin-left: 300%;">
+                    <a href="{% url 'logout' %}">Logout</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <script src="{% static 'Test_App/js/jquery-3.3.1.min.js' %}" ></script>
+    <script src="{% static 'Test_App/js/popper.min.js' %}" ></script>
+    <script src="{% static 'Test_App/js/bootstrap.min.js' %}" ></script>
+</body>
