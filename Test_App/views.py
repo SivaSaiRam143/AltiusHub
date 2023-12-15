@@ -24,25 +24,27 @@ class HeaderViewSet(viewsets.ModelViewSet):
     
     def create(self, request, *args, **kwargs):
         
+        header_serializer = self.get_serializer(data=request.data)
+        if header_serializer.is_valid():
+            header_obj = header_serializer.save()
+        else:
+            return Response(data=header_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         items_data = request.data['items']
         item_objs = []
         for item_data in items_data:
             item_data['Amount'] = item_data['Quantity']*item_data['Price']
-            item_obj, _ = Item.objects.get_or_create(**item_data)
+            item_obj, _ = Item.objects.get_or_create(invoice_header=header_obj, **item_data)
             item_objs.append(item_obj.id)
         request.data['items'] = item_objs
         temp = sum([float(x['Amount']) for x in items_data]) + sum([float(x['Amount']) for x in request.data['billsundry']])
         sundrys_data = request.data['billsundry']
         sundry_objs = []
         for sundry_data in sundrys_data:
-            sundry_obj, _ = Item.objects.get_or_create(**sundry_data)
+            sundry_obj, _ = Item.objects.get_or_create(invoice_header=header_obj, **sundry_data)
             sundry_objs.append(sundry_obj.id)
         request.data['billsundry'] = sundry_objs
         request.data['TotalAmount'] = temp
-        header_serializer = self.get_serializer(data=request.data)
-        if header_serializer.is_valid():
-            header_obj = header_serializer.save()
-        return Response(data=header_serializer.data, status=status.HTTP_400_BAD_REQUEST)
+        return Response(data=header_serializer.data, status=status.HTTP_200_OK)
 
 
     def retrieve(self, request,  pk=None, *args, **kwargs):
